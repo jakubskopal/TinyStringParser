@@ -374,19 +374,8 @@ def generate_source_file():
         return s
 
     def program_initial_parse_variable(s, variable, state_next):
-        if variable['parse'] != "string":
-            s = s + "          parserState->len = 0;\n"
-            if variable['parse'] == "integer":
-                s = s + "          parserState->flags &= ~%sFLAG_NEGATIVE_INTEGER;\n" % token_prefix
-            s = s + "          parserState->%s = 0;\n" % variable['variable']
-            s = s + "          %s\n" % change_state(state, next_state)
-
-            s = s + "          continue;\n"
-        else:
-            s = s + "          parserState->len = 0;\n"
-            s = s + "          parserState->%s[0] = '\\0';\n" % variable['variable']
-            s = s + "          %s\n" % change_state(state, next_state)
-            s = s + "          continue;\n"
+        s = s + "          %s\n" % change_state(state, next_state)
+        s = s + "          goto init_%s;\n" % variable['variable']
         return s
 
     def program_parse_variable(s, variable):
@@ -501,6 +490,20 @@ def generate_source_file():
 
     txt = txt + "\n"
     txt = txt + "    /* unreacheable */\n"
+    txt = txt + "\n"
+    for name, spec in state_variables.items():
+        txt = txt + "init_%s:\n" % name
+        if spec['type'] == "int8_t" or spec['type'] == "int16_t":
+            txt = txt + "    parserState->flags &= ~%sFLAG_NEGATIVE_INTEGER;\n" % token_prefix
+        if spec['type'] == "uint8_t" or spec['type'] == "int8_t" or spec['type'] == "uint16_t" or spec['type'] == "int16_t":
+            txt = txt + "    parserState->%s = 0;\n" % name
+        if spec['type'] == "unsigned char" or spec['type'] == "char":
+            txt = txt + "    parserState->%s[0] = '\\0';\n" % name
+        txt = txt + "    goto init_common;\n"
+        txt = txt + "\n"
+    txt = txt + "init_common:\n"
+    txt = txt + "    parserState->len = 0;\n"
+    txt = txt + "    continue;\n"
     txt = txt + "\n"
     txt = txt + "if_match_decrement_state_and_character_finished:\n"
     txt = txt + "    if (c == only_match) { goto decrement_state_and_character_finished; }\n"

@@ -1,4 +1,5 @@
 tests/*.o
+tests/*.s
 tests/test
 tests/modem_parser.h
 tests/modem_parser.c
