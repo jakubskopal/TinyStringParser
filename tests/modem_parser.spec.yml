@@ -1,0 +1,142 @@
+parser:
+  parserPrefix: modem_parser_
+  tokenPrefix: MODEM_
+  name: modem_parser
+  debug: true
+state:
+  name: ModemParserState
+  variables:
+    uint8_arg0:
+      type: uint8_t
+    uint8_arg1:
+      type: uint8_t
+    uint8_arg2:
+      type: uint8_t
+    uint8_arg3:
+      type: uint8_t
+    uint8_arg4:
+      type: uint8_t
+    uint8_arg5:
+      type: uint8_t
+    sint8_arg0:
+      type: int8_t
+    string_arg0:
+      type: unsigned char
+      len: 9
+tokens:
+  OK:
+    pattern: "\r\nOK\r\n"
+  ERROR:
+    pattern: "\r\nERROR\r\n"
+  CONNECT_OK:
+    pattern: "\r\nCONNECT OK\r\n"
+  IP_ADDRESS:
+    pattern: "\r\n%0%.%1%.%2%.%3%\r\n"
+    flag: EXPECT_IP_ADDRESS
+    placeholders:
+      - parse: decimal
+        variable: uint8_arg0
+        name: o1
+      - parse: decimal
+        variable: uint8_arg1
+        name: o2
+      - parse: decimal
+        variable: uint8_arg2
+        name: o3
+      - parse: decimal
+        variable: uint8_arg3
+        name: o4
+  AP_RESPONSE:
+    pattern: "\r\nAP:%0%,\"%1%\"\r\n"
+    leave: "\r\n"
+    placeholders:
+      - parse: decimal
+        variable: uint8_arg0
+        name: id
+      - parse: string
+        variable: string_arg0
+        name: name
+  CCLK_RESPONSE:
+    pattern: "\r\n+CCLK: \"%0%/%1%/%2%,%3%:%4%:%5%%6%\"\r\n"
+    leave: "\r\n"
+    placeholders:
+      - parse: decimal
+        variable: uint8_arg0
+        name: year
+      - parse: decimal
+        variable: uint8_arg1
+        name: month
+      - parse: decimal
+        variable: uint8_arg2
+        name: day
+      - parse: decimal
+        variable: uint8_arg3
+        name: hour
+      - parse: decimal
+        variable: uint8_arg4
+        name: min
+      - parse: decimal
+        variable: uint8_arg5
+        name: sec
+      - parse: integer
+        variable: sint8_arg0
+        name: tz
+  CSMINS_RESPONSE:
+    pattern: "\r\n+CSMINS: %0%,%1%\r\n"
+    leave: "\r\n"
+    placeholders:
+      - parse: decimal
+        variable: uint8_arg0
+        name: a1
+      - parse: decimal
+        variable: uint8_arg1
+        name: a2
+  CREG_RESPONSE:
+    pattern: "\r\n+CREG: %0%,%1%\r\n"
+    leave: "\r\n"
+    placeholders:
+      - parse: decimal
+        variable: uint8_arg0
+        name: a1
+      - parse: decimal
+        variable: uint8_arg1
+        name: a2
+  CGATT_RESPONSE:
+    pattern: "\r\n+CGATT: %0%\r\n"
+    leave: "\r\n"
+    placeholders:
+      - parse: decimal
+        variable: uint8_arg0
+        name: a
+  CPIN_RESPONSE:
+    pattern: "\r\n+CPIN: %0%\n"
+    leave: "\r\n"
+    placeholders:
+      - parse: options
+        enum:
+          CPIN_READY:
+            pattern: "READY\r"
+          CPIN_SIM_PIN:
+            pattern: "SIM PIN\r"
+          CPIN_SIM_PUK:
+            pattern: "SIM PUK\r"
+          CPIN_PH_SIM_PIN:
+            pattern: "PH_SIM PIN\r"
+          CPIN_PH_SIM_PUK:
+            pattern: "PH_SIM PUK\r"
+          CPIN_SIM_PIN2:
+            pattern: "SIM PIN2\r"
+          CPIN_SIM_PUK2:
+            pattern: "SIM PUK2\r"
+        variable: uint8_arg0
+        name: state
+expects:
+  ok_or_error:
+    - OK
+    - ERROR
+  cpin_response_or_error:
+    - CPIN_RESPONSE
+    - ERROR
+  cgatt_response_or_error:
+    - CGATT_RESPONSE
+    - ERROR
