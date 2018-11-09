@@ -513,7 +513,7 @@ def generate_source_file():
     txt = txt + "    if (hi_state == 0xff && lo_state == 0xff) goto character_finished;  // if state equals STATE_START"
     txt = txt + "\n"
     txt = txt + "    /* unexpected character encountered, this fallback is not 100% correct, but should do */\n"
-    txt = txt + "    %s\n" % change_state(None, STATE_START)
+    txt = txt + "    hi_state = lo_state = 0xff;\n"
     txt = txt + "  }\n"
     txt = txt + "\n"
     txt = txt + "  /* unreacheable */\n"
