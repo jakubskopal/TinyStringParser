@@ -24,12 +24,6 @@ state:
       type: unsigned char
       len: 9
 tokens:
-  OK:
-    pattern: "\r\nOK\r\n"
-  ERROR:
-    pattern: "\r\nERROR\r\n"
-  CONNECT_OK:
-    pattern: "\r\nCONNECT OK\r\n"
   IP_ADDRESS:
     pattern: "\r\n%0%.%1%.%2%.%3%\r\n"
     flag: EXPECT_IP_ADDRESS
@@ -46,9 +40,16 @@ tokens:
       - parse: decimal
         variable: uint8_arg3
         name: o4
+  OK:
+    pattern: "\r\nOK\r\n"
+  ERROR:
+    pattern: "\r\nERROR\r\n"
+  CONNECT_OK:
+    pattern: "\r\nCONNECT OK\r\n"
   AP_RESPONSE:
     pattern: "\r\nAP:%0%,\"%1%\"\r\n"
     leave: "\r\n"
+    flag: AP_RESPONSE
     placeholders:
       - parse: decimal
         variable: uint8_arg0
@@ -56,6 +57,10 @@ tokens:
       - parse: string
         variable: string_arg0
         name: name
+  AT_ERROR:
+    pattern: "\r\nAT ERROR\r\n"
+    flag: AT_ERROR
+    leave: "\r\n"
   CCLK_RESPONSE:
     pattern: "\r\n+CCLK: \"%0%/%1%/%2%,%3%:%4%:%5%%6%\"\r\n"
     leave: "\r\n"
@@ -111,8 +116,9 @@ tokens:
   CPIN_RESPONSE:
     pattern: "\r\n+CPIN: %0%\n"
     leave: "\r\n"
+    flag: CPIN_RESPONSE
     placeholders:
-      - parse: options
+      - parse: enum
         enum:
           CPIN_READY:
             pattern: "READY\r"

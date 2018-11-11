@@ -75,7 +75,7 @@ def create_states_from_tokens():
         global enums
         removed_states = []
         for state in states:
-            if state.variable is not None and state.variable['parse'] == "options":
+            if state.variable is not None and state.variable['parse'] == "enum":
                 original_next = state.next
                 next_index = 0
                 for key, spec in state.variable['enum'].items():
@@ -617,7 +617,7 @@ def generate_header_file():
                 format_string = format_string + " %s=" % name
                 if var['parse'] == "string":
                     format_string = format_string + "'%s'"
-                elif var['parse'] == "decimal" or var['parse'] == "options":
+                elif var['parse'] == "decimal" or var['parse'] == "enum":
                     format_string = format_string + "%d"
                 elif var['parse'] == "integer":
                     format_string = format_string + "%i"
