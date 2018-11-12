@@ -318,61 +318,6 @@ def generate_source_file():
             s = s + "%*s}\n" % (i, "")
         return s
 
-    def define_parse_decimal(s, type):
-        s = s + "static bool parse_decimal_%s(%s *state, unsigned char c, %s *target) {\n" % (type.replace(' ', '_'), state_name, type)
-        s = s + "  if (isdigit(c)) {\n"
-        s = s + "    *target = 10 * *target + (c - '0');\n"
-        s = s + "    state->len++;\n"
-        s = s + "    return true;\n"
-        s = s + "  }\n"
-        s = s + "  return false;\n"
-        s = s + "}\n"
-        s = s + "\n"
-        return s
-
-    def define_parse_integer(s, type):
-        s = s + "static bool parse_integer_%s(%s *state, unsigned char c, %s *target) {\n" % (type.replace(' ', '_'), state_name, type)
-        s = s + "  if (!state->len && (c == '+' || c == '-')) {\n"
-        s = s + "     if (c == '-') { state->flags |= %sFLAG_NEGATIVE_INTEGER; }\n" % token_prefix
-        s = s + "  } else if (isdigit(c)) {\n"
-        s = s + "    *target = 10 * *target + (c - '0');\n"
-        s = s + "    if ((state->flags & %sFLAG_NEGATIVE_INTEGER) != 0 && c != '0') {\n" % token_prefix
-        s = s + "      *target = -*target;\n"
-        s = s + "       state->flags &= ~%sFLAG_NEGATIVE_INTEGER;\n" % token_prefix
-        s = s + "    }\n"
-        s = s + "  } else {\n"
-        s = s + "    return false;\n"
-        s = s + "  }\n"
-        s = s + "  state->len++;\n"
-        s = s + "  return true;\n"
-        s = s + "}\n"
-        s = s + "\n"
-        return s
-
-    def define_parse_hex(s, type):
-        s = s + "static uint16_t parse_hex_%s(%s *state, unsigned char c, %s *target) {\n" % (type.replace(' ', '_'), state_name, type)
-        s = s + "  if (isxdigit(c)) {\n"
-        s = s + "    *target = 16 * *target + (c >= 'A' ? toupper(c) - 'A' + 10 : c - '0');\n"
-        s = s + "    state->len++;\n"
-        s = s + "    return true;\n"
-        s = s + "  }\n"
-        s = s + "  return false;\n"
-        s = s + "}\n"
-        s = s + "\n"
-        return s
-
-    def define_parse_string(s, type):
-        s = s + "static bool parse_string_%s(%s *state, unsigned char c, uint8_t len, %s *target) {\n" % (type.replace(' ', '_'), state_name, type)
-        s = s + "  if (state->len >= len) {\n"
-        s = s + "    return false;\n"
-        s = s + "  }\n"
-        s = s + "  target[state->len++] = c;\n"
-        s = s + "  target[state->len] = '\\0';\n"
-        s = s + "  return true;\n"
-        s = s + "}\n"
-        s = s + "\n"
-        return s
-
     def program_initial_parse_variable(s, variable, state_next):
         s = s + "          %s\n" % change_state(state, next_state)
         s = s + "          goto init_%s;\n" % variable['variable']
